@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Illuminate\Http\Request;
 use App\Services\FatoorhService;
 
 class FatoorhController extends Controller
 {
     private $FatoorhService;
+
     public function __construct(FatoorhService $FatoorhService)
     {
         $this->FatoorhService = $FatoorhService;
@@ -16,18 +18,49 @@ class FatoorhController extends Controller
     public function index()
     {
         $data = [
-            //Fill optional data
             'CustomerName' => 'Maryiem Sobhy',
             'NotificationOption' => 'LNK',
-            "InvoiceValue" => 100.0,
+            'InvoiceValue' => 100.0,
             'DisplayCurrencyIso' => 'SAR',
             'CustomerEmail' => 'maryam@example.com',
-            'CallBackUrl' => 'http://127.0.0.1:8000/',
-            'ErrorUrl' => 'https://example.com/callback.php',
+            'CallBackUrl' => 'http://127.0.0.1:8000/callback',
+            'ErrorUrl' => 'https://goagle.com',
             'Language' => 'en',
-
+            'MobileCountryCode' => '+966',
+            'CustomerMobile' => '1234567890',
         ];
-        $this ->FatoorhService ->sendpayment($data);
 
+        $response = $this->FatoorhService->sendpayment($data);
+
+        if (isset($response['error'])) {
+            // تعامل مع الخطأ هنا
+            return response()->json(['error' => $response['error']], 500);
+        }
+
+        // تعامل مع الاستجابة الناجحة هنا
+        return response()->json($response);
     }
+    public function callback(Request $request)
+    {
+    
+
+        // التحقق من وجود paymentId في الطلب
+        if (!$request->has('paymentId')) {
+            return response()->json([
+                'IsSuccess' => false,
+                'Message' => 'PaymentId is required',
+            ], 400);
+        }
+
+        $data = [];
+        $data['key'] = $request->paymentId; // تقديم paymentId كـ 'key'
+        $data['KeyType'] = 'PaymentId'; // نوع المفتاح هو 'PaymentId'
+
+        // استدعاء خدمة FatoorhService للتحقق من حالة الدفع
+        $response = $this->FatoorhService->GetPaymentStatus($data);
+
+        return response()->json($response);
+    }
+
+
 }

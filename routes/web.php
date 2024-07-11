@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FatoorhController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/pay',['FatoorhController::class','index'])->name('fatoorh');
-Route::get('/callback',['FatoorhController::class','callback'])->name('callback');
-Route::get('/error',['FatoorhController::class','error'])->name('error');
+
+Route::get('/pay', [FatoorhController::class, 'index'])->name('fatoorh');
+Route::get('/callback', [FatoorhController::class, 'callback'])->name('callback');
+Route::get('/error', [FatoorhController::class, 'error'])->name('error');
 
